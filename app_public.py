@@ -5416,9 +5416,8 @@ def file_too_large(error):
 # START APPLICATION
 # ============================================================
 
-if __name__ == "__main__":
-
-    initialize_database()
+initialize_database()
+if __name__ =="__main__":
 
     print()
     print("=" * 60)
