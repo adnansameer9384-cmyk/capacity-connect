@@ -13,7 +13,7 @@ import re
 import secrets
 import smtplib
 from email.message import EmailMessage
-
+import resend
 # ============================================================
 # CAPACITY CONNECT
 # Professional SIH Prototype
@@ -1411,29 +1411,30 @@ def register():
 
         # Generate a 6-digit OTP and keep only its hash in the session.
         otp = f"{secrets.randbelow(1000000):06d}"
-        otp_hash = generate_password_hash(otp)
+otp_hash = generate_password_hash(otp)
 
-        smtp_email = os.environ.get("SMTP_EMAIL", "").strip()
-        smtp_password = os.environ.get("SMTP_APP_PASSWORD", "").strip()
+try:
+    resend.api_key = os.environ.get("RESEND_API_KEY", "").strip()
 
-        if not smtp_email or not smtp_password:
-            flash("Email verification is not configured yet. Please contact the administrator.", "danger")
-            return redirect(url_for("register"))
+    if not resend.api_key:
+        raise Exception("RESEND_API_KEY is missing")
 
-        try:
-            resend.api_key = os.environ.get("RESEND_API_KEY", "").strip()
+    resend.Emails.send({
+        "from": "onboarding@resend.dev",
+        "to": email,
+        "subject": "CAPACITY CONNECT - Email Verification OTP",
+        "text": (
+            f"Hello {name},\n\n"
+            f"Your CAPACITY CONNECT verification code is: {otp}\n\n"
+            "This OTP is valid for 10 minutes. Do not share it with anyone.\n\n"
+            "CAPACITY CONNECT"
+        )
+    })
 
-resend.Emails.send({
-    "from": "onboarding@resend.dev",
-    "to": [email],
-    "subject": "CAPACITY CONNECT - Email Verification OTP",
-    "text": (
-        f"Hello {name},\n\n"
-        f"Your CAPACITY CONNECT verification code is: {otp}\n\n"
-        "This OTP is valid for 10 minutes. Do not share it with anyone.\n\n"
-        "CAPACITY CONNECT"
-    ),
-})
+except Exception:
+    app.logger.exception("Unable to send registration OTP")
+    flash("We could not send the verification email. Please try again later.", "danger")
+    return redirect(url_for("register"))
             
             
 
