@@ -1435,22 +1435,7 @@ except Exception:
     app.logger.exception("Unable to send registration OTP")
     flash("We could not send the verification email. Please try again later.", "danger")
     return redirect(url_for("register"))
-
-except Exception:
-    app.logger.exception("Unable to send registration OTP")
-    flash("We could not send the verification email. Please try again later.", "danger")
-    return redirect(url_for("register"))
-            
-            
-
-            
     
-                
-
-        except Exception:
-            app.logger.exception("Unable to send registration OTP")
-            flash("We could not send the verification email. Please try again later.", "danger")
-            return redirect(url_for("register"))
 
         session["pending_registration"] = {
             "name": name,
