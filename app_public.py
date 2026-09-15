@@ -1421,21 +1421,25 @@ def register():
             return redirect(url_for("register"))
 
         try:
-            message = EmailMessage()
-            message["Subject"] = "CAPACITY CONNECT - Email Verification OTP"
-            message["From"] = smtp_email
-            message["To"] = email
-            message.set_content(
-                f"Hello {name},\n\n"
-                f"Your CAPACITY CONNECT verification code is: {otp}\n\n"
-                "This OTP is valid for 10 minutes. Do not share it with anyone.\n\n"
-                "CAPACITY CONNECT"
-            )
+            resend.api_key = os.environ.get("RESEND_API_KEY", "").strip()
 
-            with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as server:
-                server.starttls()
-                server.login(smtp_email, smtp_password)
-                server.send_message(message)
+resend.Emails.send({
+    "from": "onboarding@resend.dev",
+    "to": [email],
+    "subject": "CAPACITY CONNECT - Email Verification OTP",
+    "text": (
+        f"Hello {name},\n\n"
+        f"Your CAPACITY CONNECT verification code is: {otp}\n\n"
+        "This OTP is valid for 10 minutes. Do not share it with anyone.\n\n"
+        "CAPACITY CONNECT"
+    ),
+})
+            
+            
+
+            
+    
+                
 
         except Exception:
             app.logger.exception("Unable to send registration OTP")
